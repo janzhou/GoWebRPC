@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <title>Sample of websocket with golang</title>
+        <script src="jquery.min.js"></script>
+        <script>
+            $(function() {
+                var echo = new WebSocket("ws://"+window.location.host+"/echo");
+                var rpc  = new WebSocket("ws://"+window.location.host+"/rpc");
+                var $ul = $('#msg-list');
+                var method = '{"method": "Arith.Multiply", "params": [{"A":7, "B":8}], "id": 1}';
+                $('#echo').val(method);
+                $('#rpc').val(method);
+
+                echo.onmessage = function(e) {
+                    console.log("echo-receive:" + e.data);
+                    $('<li>').text(e.data).appendTo($ul);
+                };
+                rpc.onmessage = function(e) {
+                    console.log("rpc-receive:" + e.data);
+                    $('<li>').text(e.data).appendTo($ul);
+                };
+
+                $('#echoBtn').click(function(){
+                    var data = $('#echo').val();
+                    echo.send(data);
+                    console.log("echo-send:" + data);
+                });
+                $('#rpcBtn').click(function(){
+                    var data = $('#rpc').val();
+                    rpc.send(data);
+                    console.log("rpc-send:" + data);
+                });
+
+                rpc.onerror = function (error) {
+                    console.log('RPC Error ' + error);
+                };
+            });
+        </script>
+    </head>
+    <body>
+        <input id="echo" type="text" />
+        <input type="button" id="echoBtn" value="echo"></input>
+        <input id="rpc" type="text" value="" />
+        <input type="button" id="rpcBtn" value="rpc"></input>
+        <ul id="msg-list"></ul>
+    </body>
+</html>
