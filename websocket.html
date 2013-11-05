@@ -8,6 +8,9 @@
             $(function() {
                 var echo = new WebSocket("ws://"+window.location.host+"/echo");
                 var rpc  = new WebSocket("ws://"+window.location.host+"/rpc");
+                var rpcclient  = new WebSocket("ws://"+window.location.host+"/rpcclient");
+                var notify = new WebSocket("ws://"+window.location.host+"/notify");
+
                 var $ul = $('#msg-list');
                 var method = '{"method": "Arith.Multiply", "params": [{"A":7, "B":8}], "id": 1}';
                 $('#echo').val(method);
@@ -21,6 +24,15 @@
                     console.log("rpc-receive:" + e.data);
                     $('<li>').text(e.data).appendTo($ul);
                 };
+                rpcclient.onmessage = function(e) {
+                    console.log("rpcclient-receive:" + e.data);
+                    $('<li>').text(e.data).appendTo($ul);
+                };
+                notify.onmessage = function(e) {
+                    console.log("notify-receive:" + e.data);
+                    $('<li>').text(e.data).appendTo($ul);
+                };
+
 
                 $('#echoBtn').click(function(){
                     var data = $('#echo').val();
@@ -31,6 +43,16 @@
                     var data = $('#rpc').val();
                     rpc.send(data);
                     console.log("rpc-send:" + data);
+                });
+                $('#rpcclientBtn').click(function(){
+                    var data = $('#rpcclient').val();
+                    rpcclient.send(data);
+                    console.log("rpcclient-send:" + data);
+                });
+                $('#notifyBtn').click(function(){
+                    var data = $('#notify').val();
+                    notify.send(data);
+                    console.log("notify-send:" + data);
                 });
 
                 rpc.onerror = function (error) {
@@ -44,6 +66,10 @@
         <input type="button" id="echoBtn" value="echo"></input>
         <input id="rpc" type="text" value="" />
         <input type="button" id="rpcBtn" value="rpc"></input>
+        <input id="rpcclient" type="text" value="" />
+        <input type="button" id="rpcclientBtn" value="rpcclient"></input>
+        <input id="notify" type="text" value="" />
+        <input type="button" id="notifyBtn" value="notify"></input>
         <ul id="msg-list"></ul>
     </body>
 </html>

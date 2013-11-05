@@ -6,6 +6,7 @@ import (
     "net/rpc"
     "net/rpc/jsonrpc"
     "io"
+    "log"
     "errors"
 )
 
@@ -38,14 +39,30 @@ func rpcHandler(ws *websocket.Conn) {
     jsonrpc.ServeConn(ws)
 }
 
+func rpcclientHandler(ws *websocket.Conn) {
+    args := &Args{7, 8}
+    var reply int
+
+    c := jsonrpc.NewClient(ws)
+
+    err := c.Call("Arith.Multiply", args, &reply)
+    if err != nil {
+        log.Fatal("arith error:", err)
+    }
+    log.Printf("Arith: %d*%d=%d", args.A, args.B, reply)
+}
+
 func echoHandler(ws *websocket.Conn) {
-        io.Copy(ws, ws)
+    io.Copy(ws, ws)
 }
 
 func main() {
+    go h.run()
     rpc.Register(new(Arith))
 
     http.Handle("/rpc", websocket.Handler(rpcHandler))
+    http.Handle("/rpcclient", websocket.Handler(rpcclientHandler))
+    http.Handle("/notify", websocket.Handler(notifyHandler))
     http.Handle("/echo", websocket.Handler(echoHandler))
     http.Handle("/", http.FileServer(http.Dir(".")))
     err := http.ListenAndServe(":8080", nil)
