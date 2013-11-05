@@ -2,13 +2,10 @@ package main
 
 import (
     "code.google.com/p/go.net/websocket"
-    "net/http"
-    "net/rpc"
     "net/rpc/jsonrpc"
     "io"
     "log"
     "errors"
-    "flag"
 )
 
 type Args struct {
@@ -55,23 +52,4 @@ func rpcclientHandler(ws *websocket.Conn) {
 
 func echoHandler(ws *websocket.Conn) {
     io.Copy(ws, ws)
-}
-
-func main() {
-    port := flag.String("port", ":8080", "http service address")
-    flag.Parse()
-
-    go h.run()
-    rpc.Register(new(Arith))
-
-    http.Handle("/rpc", websocket.Handler(rpcHandler))
-    http.Handle("/rpcclient", websocket.Handler(rpcclientHandler))
-    http.Handle("/notify", websocket.Handler(notifyHandler))
-    http.Handle("/echo", websocket.Handler(echoHandler))
-    http.Handle("/", http.FileServer(http.Dir(".")))
-    err := http.ListenAndServe(*port, nil)
-    if err != nil {
-        panic("ListenAndServe: " + err.Error())
-    }
-
 }
