@@ -4,17 +4,19 @@
         <meta charset="UTF-8" />
         <title>Sample of websocket with golang</title>
         <script src="jquery.min.js"></script>
+        <script src="jsonrpc.js"></script>
         <script>
             $(function() {
+                var c = jsonrpc.NewClient("ws://"+window.location.host+"/rpc");
                 var echo = new WebSocket("ws://"+window.location.host+"/echo");
-                var rpc  = new WebSocket("ws://"+window.location.host+"/rpc");
-                var rpcclient  = new WebSocket("ws://"+window.location.host+"/rpcclient");
+                //var rpc  = new WebSocket("ws://"+window.location.host+"/rpc");
+                //var rpcclient  = new WebSocket("ws://"+window.location.host+"/rpcclient");
                 var notify = new WebSocket("ws://"+window.location.host+"/notify");
 
                 var $ul = $('#msg-list');
                 var method = '{"method": "Arith.Multiply", "params": [{"A":7, "B":8}], "id": 1}';
                 $('#echo').val(method);
-                $('#rpc').val(method);
+                $('#rpc').val("Arith.Divide");
 
                 echo.onmessage = function(e) {
                     console.log("echo-receive:" + e.data);
@@ -40,9 +42,19 @@
                     console.log("echo-send:" + data);
                 });
                 $('#rpcBtn').click(function(){
-                    var data = $('#rpc').val();
-                    rpc.send(data);
-                    console.log("rpc-send:" + data);
+                    var method = $('#rpc').val();
+                    c.Call({
+                        method: method,
+                        args: { A: 7, B: 8 },
+                        success: function(result){
+                            data = "rpc result: Quo = " + result.Quo + ", Rem = " + result.Rem;
+                            $('<li>').text(data).appendTo($ul);
+                        },
+                        error: function(error){
+                            data = "rpc error: " + error;
+                            $('<li>').text(data).appendTo($ul);
+                        }
+                    });
                 });
                 $('#rpcclientBtn').click(function(){
                     var data = $('#rpcclient').val();
