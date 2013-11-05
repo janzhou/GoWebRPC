@@ -8,6 +8,7 @@ import (
     "io"
     "log"
     "errors"
+    "flag"
 )
 
 type Args struct {
@@ -57,6 +58,9 @@ func echoHandler(ws *websocket.Conn) {
 }
 
 func main() {
+    port := flag.String("port", ":8080", "http service address")
+    flag.Parse()
+
     go h.run()
     rpc.Register(new(Arith))
 
@@ -65,7 +69,7 @@ func main() {
     http.Handle("/notify", websocket.Handler(notifyHandler))
     http.Handle("/echo", websocket.Handler(echoHandler))
     http.Handle("/", http.FileServer(http.Dir(".")))
-    err := http.ListenAndServe(":8080", nil)
+    err := http.ListenAndServe(*port, nil)
     if err != nil {
         panic("ListenAndServe: " + err.Error())
     }
