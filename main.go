@@ -14,10 +14,9 @@ func main() {
     go h.run()
     rpc.Register(new(Arith))
 
-    http.Handle("/rpc", websocket.Handler(rpcHandler))
-    http.Handle("/rpcclient", websocket.Handler(rpcclientHandler))
+    http.Handle("/jsonrpc", websocket.Handler(jsonrpcHandler))
     http.Handle("/notify", websocket.Handler(notifyHandler))
-    http.Handle("/echo", websocket.Handler(echoHandler))
+    http.Handle("/push", websocket.Handler(pushHandler))
     http.Handle("/", http.FileServer(http.Dir(*htdocs)))
     err := http.ListenAndServe(*port, nil)
     if err != nil {

@@ -8,7 +8,7 @@
         <script>
             $(function() {
                 var msg = $('#msg-list');
-                var rpc = jsonrpc.NewClient("ws://"+window.location.host+"/rpc");
+                var rpc = jsonrpc.NewClient("ws://"+window.location.host+"/jsonrpc");
 
                 $('#divide').click(function(){
                     var args = {};
