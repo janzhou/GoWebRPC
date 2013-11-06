@@ -7,81 +7,60 @@
         <script src="jsonrpc.js"></script>
         <script>
             $(function() {
-                var c = jsonrpc.NewClient("ws://"+window.location.host+"/rpc");
-                var echo = new WebSocket("ws://"+window.location.host+"/echo");
-                //var rpc  = new WebSocket("ws://"+window.location.host+"/rpc");
-                //var rpcclient  = new WebSocket("ws://"+window.location.host+"/rpcclient");
-                var notify = new WebSocket("ws://"+window.location.host+"/notify");
+                var msg = $('#msg-list');
+                var rpc = jsonrpc.NewClient("ws://"+window.location.host+"/rpc");
 
-                var $ul = $('#msg-list');
-                var method = '{"method": "Arith.Multiply", "params": [{"A":7, "B":8}], "id": 1}';
-                $('#echo').val(method);
-                $('#rpc').val("Arith.Divide");
-
-                echo.onmessage = function(e) {
-                    console.log("echo-receive:" + e.data);
-                    $('<li>').text(e.data).appendTo($ul);
-                };
-                rpc.onmessage = function(e) {
-                    console.log("rpc-receive:" + e.data);
-                    $('<li>').text(e.data).appendTo($ul);
-                };
-                rpcclient.onmessage = function(e) {
-                    console.log("rpcclient-receive:" + e.data);
-                    $('<li>').text(e.data).appendTo($ul);
-                };
-                notify.onmessage = function(e) {
-                    console.log("notify-receive:" + e.data);
-                    $('<li>').text(e.data).appendTo($ul);
-                };
-
-
-                $('#echoBtn').click(function(){
-                    var data = $('#echo').val();
-                    echo.send(data);
-                    console.log("echo-send:" + data);
-                });
-                $('#rpcBtn').click(function(){
-                    var method = $('#rpc').val();
-                    c.Call({
-                        method: method,
-                        args: { A: 7, B: 8 },
+                $('#divide').click(function(){
+                    var args = {};
+                    args.A = parseInt($('#A').val());
+                    args.B = parseInt($('#B').val());
+                    $('#A').val(args.A);
+                    $('#B').val(args.B);
+                    rpc.Call({
+                        method: "Arith.Divide",
+                        params: new Array(args),
                         success: function(result){
-                            data = "rpc result: Quo = " + result.Quo + ", Rem = " + result.Rem;
-                            $('<li>').text(data).appendTo($ul);
+                            $('#divide-result').val(result.Quo + " ......" + result.Rem);
                         },
                         error: function(error){
-                            data = "rpc error: " + error;
-                            $('<li>').text(data).appendTo($ul);
+                            msg.prepend("<li>rpc error: " + error + "</li>");
+                            $('#divide-result').val("0 ......0");
                         }
                     });
                 });
-                $('#rpcclientBtn').click(function(){
-                    var data = $('#rpcclient').val();
-                    rpcclient.send(data);
-                    console.log("rpcclient-send:" + data);
-                });
-                $('#notifyBtn').click(function(){
-                    var data = $('#notify').val();
-                    notify.send(data);
-                    console.log("notify-send:" + data);
+
+                $('#multiply').click(function(){
+                    var args = {};
+                    args.A = parseInt($('#A').val());
+                    args.B = parseInt($('#B').val());
+                    $('#A').val(args.A);
+                    $('#B').val(args.B);
+                    rpc.Call({
+                        method: "Arith.Multiply",
+                        params: new Array(args),
+                        success: function(result){
+                            $('#multiply-result').val(result);
+                        },
+                        error: function(error){
+                            msg.prepend("<li>rpc error: " + error + "</li>");
+                            $('#multiply-result').val("0.0");
+                        }
+                    });
                 });
 
-                rpc.onerror = function (error) {
-                    console.log('RPC Error ' + error);
-                };
             });
         </script>
     </head>
     <body>
-        <input id="echo" type="text" />
-        <input type="button" id="echoBtn" value="echo"></input>
-        <input id="rpc" type="text" value="" />
-        <input type="button" id="rpcBtn" value="rpc"></input>
-        <input id="rpcclient" type="text" value="" />
-        <input type="button" id="rpcclientBtn" value="rpcclient"></input>
-        <input id="notify" type="text" value="" />
-        <input type="button" id="notifyBtn" value="notify"></input>
+        A: <input id="A" type="text" />
+        B: <input id="B" type="text" />
+        |
+        <input id="multiply-result" type="text" />
+        <input type="button" id="multiply" value="Arith.Multiply"></input>
+        |
+        <input id="divide-result" type="text" />
+        <input type="button" id="divide" value="Arith.Devide"></input>
+        <hr/>
         <ul id="msg-list"></ul>
     </body>
 </html>

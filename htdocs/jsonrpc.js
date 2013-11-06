@@ -11,8 +11,9 @@ jsonrpc.Call = function(request){
         };
     }
 
+    request.id = this.i;
     this.request[this.i] = request;
-    var data = '{"method": "'+request.method+'", "params": ['+JSON.stringify(request.args)+'], "id": '+this.i+'}';
+    data = JSON.stringify(request);
     this.ws.send(data);
 };
 
