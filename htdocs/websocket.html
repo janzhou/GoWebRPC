@@ -7,8 +7,33 @@
         <script src="jsonrpc.js"></script>
         <script>
             $(function() {
+                var id = -1;
                 var msg = $('#msg-list');
                 var rpc = jsonrpc.NewClient("ws://"+window.location.host+"/jsonrpc");
+                var push;
+
+                rpc.ws.onopen = function(){
+                    rpc.Call({
+                        method: "User.Signup",
+                        params: new Array("none"),
+                        success: function(result){
+                            id = result;
+                            msg.prepend("<li>id: " + result + "</li>");
+
+                            push = jsonrpc.NewServer("ws://"+window.location.host+"/push");
+                            push.Register('User.Getid', function(parmars){
+                                return {
+                                    result: id,
+                                    error: null
+                                };
+                            });
+                            push.Connect();
+                        },
+                        error: function(error){
+                            msg.prepend("<li>user singn up error: " + error + "</li>");
+                        }
+                    });
+                };
 
                 $('#divide').click(function(){
                     var args = {};
@@ -16,6 +41,7 @@
                     args.B = parseInt($('#B').val());
                     $('#A').val(args.A);
                     $('#B').val(args.B);
+                    args.id = id;
                     rpc.Call({
                         method: "Arith.Divide",
                         params: new Array(args),
@@ -35,6 +61,7 @@
                     args.B = parseInt($('#B').val());
                     $('#A').val(args.A);
                     $('#B').val(args.B);
+                    args.id = id;
                     rpc.Call({
                         method: "Arith.Multiply",
                         params: new Array(args),

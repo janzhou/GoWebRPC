@@ -6,12 +6,13 @@ import (
     "net/rpc"
     "flag"
 )
+
 func main() {
     port := flag.String("port", ":8080", "http service address")
     htdocs := flag.String("htdocs", "htdocs", "http dir")
     flag.Parse()
 
-    go h.run()
+    rpc.Register(user)
     rpc.Register(new(Arith))
 
     http.Handle("/jsonrpc", websocket.Handler(jsonrpcHandler))

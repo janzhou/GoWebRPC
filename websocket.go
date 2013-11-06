@@ -11,15 +11,18 @@ func jsonrpcHandler(ws *websocket.Conn) {
 }
 
 func pushHandler(ws *websocket.Conn) {
-    args := &Args{7, 8}
-    var reply int
+    var id int
 
     c := jsonrpc.NewClient(ws)
 
-    err := c.Call("Arith.Multiply", args, &reply)
+    err := c.Call("User.Getid", nil, &id)
     if err != nil {
-        log.Fatal("arith error:", err)
+        log.Print("User.Getid error:", err)
+        return
+    } else {
+        user.client[id] = c;
+        user.mutex[id].Lock()
     }
-    log.Printf("Arith: %d*%d=%d", args.A, args.B, reply)
+
 }
 
