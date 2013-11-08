@@ -18,7 +18,7 @@ jsonrpc.Call = function(request){
 };
 
 jsonrpc.onclientmessage = function(e) {
-    var client = e.originalTarget.parrent;
+    var client = e.currentTarget.parrent;
     var d = e.data;
     ret = JSON.parse(e.data, function (key, value) {
         var type;
